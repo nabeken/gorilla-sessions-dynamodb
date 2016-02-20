@@ -12,6 +12,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/gorilla/securecookie"
@@ -21,9 +22,12 @@ import (
 	"github.com/nabeken/aws-go-dynamodb/table/option"
 )
 
+const timeFormat = time.RFC3339
+
 var (
 	errSessionNotFound = errors.New("dynamostore: session data is not found")
 	errSessionBroken   = errors.New("dynamostore: session data is broken")
+	errSessionExpired  = errors.New("dynamostore: session data is expired")
 )
 
 var (
@@ -32,6 +36,9 @@ var (
 
 	// SessionDataKeyName is the name of attribute that represents session data encoded in Gob.
 	SessionDataKeyName = "session_data"
+
+	// SessionExpiresName is the name of attribute that represents session expiration date.
+	SessionExpiresName = "session_expires_at"
 )
 
 var DefaultSessionOpts = &sessions.Options{
@@ -56,11 +63,14 @@ func New(dynamodbAPI dynamodbiface.DynamoDBAPI, tableName string, keyPairs ...[]
 	// setting DynamoDB table wrapper
 	t := table.New(dynamodbAPI, tableName).WithHashKey(SessionIdHashKeyName, "S")
 
-	return &Store{
+	s := &Store{
 		Table:   t,
 		Codecs:  securecookie.CodecsFromPairs(keyPairs...),
 		Options: DefaultSessionOpts,
 	}
+	s.MaxAge(s.Options.MaxAge)
+
+	return s
 }
 
 // Get returns a session for the given name after adding it to the registry.
@@ -120,6 +130,20 @@ func (s *Store) Save(r *http.Request, w http.ResponseWriter, session *sessions.S
 	return nil
 }
 
+// MaxAge sets the maximum age for the store and the underlying cookie
+// implementation. Individual sessions can be deleted by setting Options.MaxAge
+// = -1 for that session.
+func (s *Store) MaxAge(age int) {
+	s.Options.MaxAge = age
+
+	// Set the maxAge for each securecookie instance.
+	for _, codec := range s.Codecs {
+		if sc, ok := codec.(*securecookie.SecureCookie); ok {
+			sc.MaxAge(age)
+		}
+	}
+}
+
 // save saves the session in DynamoDB table.
 func (s *Store) save(session *sessions.Session) error {
 	buf := new(bytes.Buffer)
@@ -129,16 +153,21 @@ func (s *Store) save(session *sessions.Session) error {
 
 	b := buf.Bytes()
 
+	now := time.Now()
+	expiresAt := now.Add(time.Duration(session.Options.MaxAge) * time.Second)
+
 	data := map[string]interface{}{
 		SessionIdHashKeyName: session.ID,
 		SessionDataKeyName:   b,
+		SessionExpiresName:   expiresAt.Format(timeFormat),
 	}
 
 	return s.Table.PutItem(data)
 }
 
 // load loads the session from dynamodb.
-// returns error if session data does not exist in dynamodb
+// It checks expiration date before it returns the session.
+// returns error if session data does not exist in dynamodb or was expired.
 func (s *Store) load(session *sessions.Session) error {
 	data := make(map[string]interface{})
 
@@ -149,6 +178,25 @@ func (s *Store) load(session *sessions.Session) error {
 	)
 	if err != nil {
 		return err
+	}
+
+	expiresAtData, ok := data[SessionExpiresName]
+	if !ok {
+		return errSessionBroken
+	}
+	expiresAtStr, ok := expiresAtData.(string)
+	if !ok {
+		return errSessionBroken
+	}
+	expiresAt, err := time.Parse(timeFormat, expiresAtStr)
+	if err != nil {
+		return errSessionBroken
+	}
+
+	if time.Now().After(expiresAt) {
+		s.delete(session)
+		// Don't want to return nil even we delete the session successfully
+		return errSessionExpired
 	}
 
 	value, ok := data[SessionDataKeyName]
