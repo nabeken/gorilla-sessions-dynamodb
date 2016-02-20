@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -75,6 +76,10 @@ func newTestDynamoDBAPI() *dynamodb.DynamoDB {
 }
 
 func TestStore(t *testing.T) {
+	if doIntegTest, _ := strconv.ParseBool(os.Getenv("DYNAMOSTORE_INTEG_TEST")); !doIntegTest {
+		t.Skip("Do not run integration tests unless DYNAMOSTORE_INTEG_TEST is set")
+	}
+
 	var req *http.Request
 	var rsp *httptest.ResponseRecorder
 	var hdr http.Header

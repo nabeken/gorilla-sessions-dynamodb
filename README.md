@@ -21,6 +21,21 @@ See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underly
 - [ ] Add expiration date support
 - [ ] Add max length support
 
+## Running integration tests
+
+Before run the test, you should launch DynamoDBLocal:
+
+```sh
+java -Djava.library.path=$HOME/tmp/dynamodb/DynamoDBLocal_lib -jar $HOME/tmp/dynamodb/DynamoDBLocal.jar -inMemory
+```
+
+then
+
+```sh
+cd dynamostore
+DYNAMOSTORE_INTEG_TEST=true go test -v
+```
+
 # Acknowledgement and License
 
 This package is a rewrite of [denizeren/dynamostore](https://github.com/denizeren/dynamostore)
