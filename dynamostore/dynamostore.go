@@ -34,6 +34,11 @@ var (
 	SessionDataKeyName = "session_data"
 )
 
+var DefaultSessionOpts = &sessions.Options{
+	Path:   "/",
+	MaxAge: 86400 * 30,
+}
+
 // Store represents the session store backed by DynamoDB.
 type Store struct {
 	Table  *table.Table
@@ -52,8 +57,9 @@ func New(dynamodbAPI dynamodbiface.DynamoDBAPI, tableName string, keyPairs ...[]
 	t := table.New(dynamodbAPI, tableName).WithHashKey(SessionIdHashKeyName, "S")
 
 	return &Store{
-		Table:  t,
-		Codecs: securecookie.CodecsFromPairs(keyPairs...),
+		Table:   t,
+		Codecs:  securecookie.CodecsFromPairs(keyPairs...),
+		Options: DefaultSessionOpts,
 	}
 }
 
@@ -68,16 +74,20 @@ func (s *Store) Get(r *http.Request, name string) (*sessions.Session, error) {
 func (s *Store) New(r *http.Request, name string) (*sessions.Session, error) {
 	session := sessions.NewSession(s, name)
 
-	// make a copy
-	options := sessions.Options{}
-	session.Options = &options
+	// Copy default options for new session if we have
+	var opts = *DefaultSessionOpts
+	if s.Options != nil {
+		opts = *s.Options
+	}
+
+	session.Options = &opts
 	session.IsNew = true
 	if c, errCookie := r.Cookie(name); errCookie == nil {
 		decodeErr := securecookie.DecodeMulti(name, c.Value, &session.ID, s.Codecs...)
 		if decodeErr == nil {
-			err := s.load(session)
-			// mark as new if fails to load
-			session.IsNew = err != nil
+			if err := s.load(session); err == nil {
+				session.IsNew = false
+			}
 		}
 	}
 
