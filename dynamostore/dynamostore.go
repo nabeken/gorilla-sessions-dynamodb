@@ -22,8 +22,6 @@ import (
 	"github.com/nabeken/aws-go-dynamodb/table/option"
 )
 
-const timeFormat = time.RFC3339
-
 var (
 	errSessionNotFound = errors.New("dynamostore: session data is not found")
 	errSessionBroken   = errors.New("dynamostore: session data is broken")
@@ -95,7 +93,8 @@ func (s *Store) New(r *http.Request, name string) (*sessions.Session, error) {
 	if c, errCookie := r.Cookie(name); errCookie == nil {
 		decodeErr := securecookie.DecodeMulti(name, c.Value, &session.ID, s.Codecs...)
 		if decodeErr == nil {
-			if err := s.load(session); err == nil {
+			err := s.load(session)
+			if err == nil {
 				session.IsNew = false
 			}
 		}
@@ -159,7 +158,7 @@ func (s *Store) save(session *sessions.Session) error {
 	data := map[string]interface{}{
 		SessionIdHashKeyName: session.ID,
 		SessionDataKeyName:   b,
-		SessionExpiresName:   expiresAt.Format(timeFormat),
+		SessionExpiresName:   expiresAt.Unix(),
 	}
 
 	return s.Table.PutItem(data)
@@ -184,14 +183,17 @@ func (s *Store) load(session *sessions.Session) error {
 	if !ok {
 		return errSessionBroken
 	}
-	expiresAtStr, ok := expiresAtData.(string)
-	if !ok {
-		return errSessionBroken
+
+	var expiresAtInt int64
+	switch v := expiresAtData.(type) {
+	case int64:
+		expiresAtInt = v
+	case int:
+		expiresAtInt = int64(v)
+		// otherwise it will be used as zero-value
 	}
-	expiresAt, err := time.Parse(timeFormat, expiresAtStr)
-	if err != nil {
-		return errSessionBroken
-	}
+
+	expiresAt := time.Unix(expiresAtInt, 0)
 
 	if time.Now().After(expiresAt) {
 		s.delete(session)
