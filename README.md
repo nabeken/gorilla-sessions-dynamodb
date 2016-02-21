@@ -31,6 +31,12 @@ cd dynamostore
 DYNAMOSTORE_INTEG_TEST=true go test -v
 ```
 
+## DynamoDB table schema
+
+You should create a table that has `session_id` as a HASH key.
+
+You can still change the key name rather than `session_id`. Please consult the code.
+
 # Acknowledgement and License
 
 This package is a rewrite of [denizeren/dynamostore](https://github.com/denizeren/dynamostore)
