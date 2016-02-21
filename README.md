@@ -16,11 +16,6 @@ Available on [godoc.org](http://godoc.org/github.com/nabeken/gorilla-sessions-dy
 
 See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underlying interface.
 
-## TODOs
-
-- [ ] Add expiration date support
-- [ ] Add max length support
-
 ## Running integration tests
 
 Before run the test, you should launch DynamoDBLocal:
