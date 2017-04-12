@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -112,6 +113,46 @@ func newTestRequestResponse() (*http.Request, *httptest.ResponseRecorder) {
 	return req, resp
 }
 
+func TestUseSessionCookie(t *testing.T) {
+	if !runIntegTest() {
+		t.Skip("Do not run integration tests unless DYNAMOSTORE_INTEG_TEST is set")
+	}
+
+	dynamodbClient := newTestDynamoDBAPI()
+	dummyTableName := prepareDynamoDBTable(dynamodbClient)
+	defer dynamodbClient.DeleteTable(&dynamodb.DeleteTableInput{
+		TableName: aws.String(dummyTableName),
+	})
+
+	store := New(dynamodbClient, dummyTableName, []byte("secret-key"))
+	store.UseSessionCookie = true
+
+	var err error
+	req, resp := newTestRequestResponse()
+
+	sessionKey := "cookie-session"
+
+	// Get a session.
+	_, err = store.Get(req, sessionKey)
+	if err != nil {
+		t.Fatalf("Error getting session: %v", err)
+	}
+	// Save.
+	err = sessions.Save(req, resp)
+	if err != nil {
+		t.Fatalf("Error saving session: %v", err)
+	}
+
+	// Eat cookie
+	cookie := strings.ToLower(extractCookie(resp))
+	if strings.Contains(cookie, "max-age") {
+		t.Fatalf("Max-Age should not be in the cookie: got '%v'", cookie)
+	}
+	if strings.Contains(cookie, "expires") {
+		t.Fatalf("Expires should not be in the cookie: got '%v'", cookie)
+	}
+}
+
 func TestStoreExpiration(t *testing.T) {
 	if !runIntegTest() {
 		t.Skip("Do not run integration tests unless DYNAMOSTORE_INTEG_TEST is set")
@@ -156,6 +197,13 @@ func TestStoreExpiration(t *testing.T) {
 
 	// Eat cookie
 	cookie := extractCookie(resp)
+	lcCookie := strings.ToLower(cookie)
+	if !strings.Contains(lcCookie, "max-age") {
+		t.Fatalf("Max-Age should be in the cookie: got '%v'", cookie)
+	}
+	if !strings.Contains(lcCookie, "expires") {
+		t.Fatalf("Expires should be in the cookie: got '%v'", cookie)
+	}
 
 	// Wait for 3 seconds
 	time.Sleep(3 * time.Second)

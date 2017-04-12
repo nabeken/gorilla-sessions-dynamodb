@@ -49,8 +49,12 @@ type Store struct {
 	Table  *table.Table
 	Codecs []securecookie.Codec
 
-	// Option is served as the default configuration
+	// Options is served as the default configuration for Cookie
 	Options *sessions.Options
+
+	// If UseSessionCookie is true, a cookie will not have Expires and Max-Age fields.
+	// Otherwise, it will be set to the same value of Options.MaxAge.
+	UseSessionCookie bool
 }
 
 // New returns a new session store.
@@ -103,13 +107,22 @@ func (s *Store) New(r *http.Request, name string) (*sessions.Session, error) {
 	return session, nil
 }
 
+func (s *Store) newCookie(name, value string, options *sessions.Options) *http.Cookie {
+	c := sessions.NewCookie(name, value, options)
+	if s.UseSessionCookie {
+		c.Expires = time.Time{}
+		c.MaxAge = 0
+	}
+	return c
+}
+
 // Save adds a single session to the response.
 func (s *Store) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
 	// Marked for deletion
 	if session.Options.MaxAge < 0 {
 		s.delete(session)
 		// Even we fail to delete, we should clear the cookie
-		http.SetCookie(w, sessions.NewCookie(session.Name(), "", session.Options))
+		http.SetCookie(w, s.newCookie(session.Name(), "", session.Options))
 		return nil
 	}
 
@@ -125,7 +138,7 @@ func (s *Store) Save(r *http.Request, w http.ResponseWriter, session *sessions.S
 	if err != nil {
 		return err
 	}
-	http.SetCookie(w, sessions.NewCookie(session.Name(), encoded, session.Options))
+	http.SetCookie(w, s.newCookie(session.Name(), encoded, session.Options))
 	return nil
 }
 
