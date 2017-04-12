@@ -49,7 +49,7 @@ type Store struct {
 	Table  *table.Table
 	Codecs []securecookie.Codec
 
-	// Option is served as the default configuration
+	// Options is served as the default configuration for Cookie
 	Options *sessions.Options
 }
 
