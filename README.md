@@ -1,6 +1,6 @@
 # gorilla-sessions-dynamodb
 
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore) [![Build Status](https://travis-ci.org/nabeken/gorilla-sessions-dynamodb.svg?branch=master)](https://travis-ci.org/nabeken/gorilla-sessions-dynamodb)
+[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore) [![Go](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml/badge.svg)](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml)
 
 A session store backend for [gorilla/sessions](http://www.gorillatoolkit.org/pkg/sessions).
 
@@ -12,7 +12,7 @@ go get -u github.com/nabeken/gorilla-sessions-dynamodb/dynamostore
 
 ## Documentation
 
-Available on [godoc.org](http://godoc.org/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore).
+Available on [pkg.go.dev](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore).
 
 See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underlying interface.
 
