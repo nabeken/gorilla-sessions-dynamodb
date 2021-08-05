@@ -21,13 +21,14 @@ See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underly
 Before run the test, you should launch DynamoDBLocal:
 
 ```sh
-java -Djava.library.path=$HOME/tmp/dynamodb/DynamoDBLocal_lib -jar $HOME/tmp/dynamodb/DynamoDBLocal.jar -inMemory
+docker run -d -p 8888:8000 amazon/dynamodb-local:1.13.6
 ```
 
 then
 
 ```sh
 cd dynamostore
+export DYNAMOSTORE_DYNAMODB_ENDPOINT=http://127.0.0.1:8888
 DYNAMOSTORE_INTEG_TEST=true go test -v
 ```
 
