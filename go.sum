@@ -12,8 +12,8 @@ github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9Y
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
-github.com/nabeken/aws-go-dynamodb v1.0.0 h1:RhU+nSTTgKKox9HaGi5GLvEFzevWc5rK6PhkrUSCueM=
-github.com/nabeken/aws-go-dynamodb v1.0.0/go.mod h1:A4MUh5dRN6DdIy6n/1ZERnH2wOaUGsZ5aNFNRLgUPwg=
+github.com/nabeken/aws-go-dynamodb v1.0.1 h1:UJ/RmFJWklwRHWOonHkNxOhR6Smhlag/Jl6UQwnxn8g=
+github.com/nabeken/aws-go-dynamodb v1.0.1/go.mod h1:A4MUh5dRN6DdIy6n/1ZERnH2wOaUGsZ5aNFNRLgUPwg=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
