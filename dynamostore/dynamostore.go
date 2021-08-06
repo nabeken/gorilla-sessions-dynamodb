@@ -168,13 +168,19 @@ func (s *Store) save(session *sessions.Session) error {
 	now := time.Now()
 	expiresAt := now.Add(time.Duration(session.Options.MaxAge) * time.Second)
 
-	data := map[string]interface{}{
-		SessionIdHashKeyName: session.ID,
-		SessionDataKeyName:   b,
-		SessionExpiresName:   expiresAt.Unix(),
-	}
+	_, err := s.Table.UpdateItem(
+		attributes.String(session.ID), nil,
 
-	return s.Table.PutItem(data)
+		option.UpdateExpressionAttributeName(SessionDataKeyName, "#session_data"),
+		option.UpdateExpressionAttributeName(SessionExpiresName, "#session_expires_at"),
+
+		option.UpdateExpressionAttributeValue(":session_data", attributes.Binary(b)),
+		option.UpdateExpressionAttributeValue(":session_expires_at", attributes.Number(expiresAt.Unix())),
+
+		option.UpdateExpression("SET #session_data = :session_data, #session_expires_at = :session_expires_at"),
+	)
+
+	return err
 }
 
 // load loads the session from dynamodb.
