@@ -1,4 +1,4 @@
-module github.com/nabeken/gorilla-session-dynamodb
+module github.com/nabeken/gorilla-sessions-dynamodb
 
 go 1.16
 
