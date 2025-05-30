@@ -41,7 +41,7 @@ var (
 	SessionExpiresName = "session_expires_at"
 )
 
-var DefaultSessionOpts = &sessions.Options{
+var DefaultSessionOpts = sessions.Options{
 	Path:   "/",
 	MaxAge: 86400 * 30,
 }
@@ -67,10 +67,12 @@ func New(dynamodbClient *dynamodb.Client, tableName string, keyPairs ...[]byte) 
 	// setting DynamoDB table wrapper
 	t := table.New(dynamodbClient, tableName).WithHashKey(SessionIdHashKeyName, "S")
 
+	opts := DefaultSessionOpts
+
 	s := &Store{
 		Table:   t,
 		Codecs:  securecookie.CodecsFromPairs(keyPairs...),
-		Options: DefaultSessionOpts,
+		Options: &opts,
 	}
 	s.MaxAge(s.Options.MaxAge)
 
@@ -89,7 +91,7 @@ func (s *Store) New(r *http.Request, name string) (*sessions.Session, error) {
 	session := sessions.NewSession(s, name)
 
 	// Copy default options for new session if we have
-	var opts = *DefaultSessionOpts
+	var opts = DefaultSessionOpts
 	if s.Options != nil {
 		opts = *s.Options
 	}
@@ -219,6 +221,8 @@ func (s *Store) load(session *sessions.Session) error {
 	case int64:
 		expiresAtInt = v
 	case int:
+		expiresAtInt = int64(v)
+	case float64:
 		expiresAtInt = int64(v)
 		// otherwise it will be used as zero-value
 	}
