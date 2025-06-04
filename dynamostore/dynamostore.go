@@ -7,6 +7,7 @@ package dynamostore
 
 import (
 	"bytes"
+	"context"
 	"encoding/base32"
 	"encoding/gob"
 	"errors"
@@ -14,12 +15,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	"github.com/nabeken/aws-go-dynamodb/attributes"
-	"github.com/nabeken/aws-go-dynamodb/table"
-	"github.com/nabeken/aws-go-dynamodb/table/option"
+	"github.com/nabeken/aws-go-dynamodb/v2/attributes"
+	"github.com/nabeken/aws-go-dynamodb/v2/table"
+	"github.com/nabeken/aws-go-dynamodb/v2/table/option"
 )
 
 var (
@@ -39,7 +41,7 @@ var (
 	SessionExpiresName = "session_expires_at"
 )
 
-var DefaultSessionOpts = &sessions.Options{
+var DefaultSessionOpts = sessions.Options{
 	Path:   "/",
 	MaxAge: 86400 * 30,
 }
@@ -61,14 +63,16 @@ type Store struct {
 // See https://github.com/gorilla/sessions/blob/master/store.go for what keyPairs means.
 // Especially for dynamostore, keyPairs is be used to authenticate session id.
 // Yes, the actual data is stored in DynamoDB table.
-func New(dynamodbAPI dynamodbiface.DynamoDBAPI, tableName string, keyPairs ...[]byte) *Store {
+func New(dynamodbClient *dynamodb.Client, tableName string, keyPairs ...[]byte) *Store {
 	// setting DynamoDB table wrapper
-	t := table.New(dynamodbAPI, tableName).WithHashKey(SessionIdHashKeyName, "S")
+	t := table.New(dynamodbClient, tableName).WithHashKey(SessionIdHashKeyName, "S")
+
+	opts := DefaultSessionOpts
 
 	s := &Store{
 		Table:   t,
 		Codecs:  securecookie.CodecsFromPairs(keyPairs...),
-		Options: DefaultSessionOpts,
+		Options: &opts,
 	}
 	s.MaxAge(s.Options.MaxAge)
 
@@ -87,7 +91,7 @@ func (s *Store) New(r *http.Request, name string) (*sessions.Session, error) {
 	session := sessions.NewSession(s, name)
 
 	// Copy default options for new session if we have
-	var opts = *DefaultSessionOpts
+	var opts = DefaultSessionOpts
 	if s.Options != nil {
 		opts = *s.Options
 	}
@@ -169,15 +173,23 @@ func (s *Store) save(session *sessions.Session) error {
 	expiresAt := now.Add(time.Duration(session.Options.MaxAge) * time.Second)
 
 	_, err := s.Table.UpdateItem(
+		context.TODO(),
+
 		attributes.String(session.ID), nil,
 
-		option.UpdateExpressionAttributeName(SessionDataKeyName, "#session_data"),
-		option.UpdateExpressionAttributeName(SessionExpiresName, "#session_expires_at"),
+		option.ExpressionAttributeNames{
+			"#session_data":       SessionDataKeyName,
+			"#session_expires_at": SessionExpiresName,
+		},
 
-		option.UpdateExpressionAttributeValue(":session_data", attributes.Binary(b)),
-		option.UpdateExpressionAttributeValue(":session_expires_at", attributes.Number(expiresAt.Unix())),
+		option.ExpressionAttributeValues{
+			":session_data":       attributes.Binary(b),
+			":session_expires_at": attributes.Number(expiresAt.Unix()),
+		},
 
-		option.UpdateExpression("SET #session_data = :session_data, #session_expires_at = :session_expires_at"),
+		option.UpdateExpression(
+			aws.String("SET #session_data = :session_data, #session_expires_at = :session_expires_at"),
+		),
 	)
 
 	return err
@@ -190,9 +202,10 @@ func (s *Store) load(session *sessions.Session) error {
 	data := make(map[string]interface{})
 
 	err := s.Table.GetItem(
+		context.TODO(),
 		attributes.String(session.ID), nil,
 		&data,
-		option.ConsistentRead(),
+		option.ConsistentRead(true),
 	)
 	if err != nil {
 		return err
@@ -208,6 +221,8 @@ func (s *Store) load(session *sessions.Session) error {
 	case int64:
 		expiresAtInt = v
 	case int:
+		expiresAtInt = int64(v)
+	case float64:
 		expiresAtInt = int64(v)
 		// otherwise it will be used as zero-value
 	}
@@ -235,5 +250,5 @@ func (s *Store) load(session *sessions.Session) error {
 
 // delete deletes keys from DynamoDB table.
 func (s *Store) delete(session *sessions.Session) error {
-	return s.Table.DeleteItem(attributes.String(session.ID), nil)
+	return s.Table.DeleteItem(context.TODO(), attributes.String(session.ID), nil)
 }
