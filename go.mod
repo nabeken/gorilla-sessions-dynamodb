@@ -9,8 +9,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.29.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.41.1
-	github.com/gorilla/securecookie v1.1.1
-	github.com/gorilla/sessions v1.2.1
+	github.com/gorilla/securecookie v1.1.2
+	github.com/gorilla/sessions v1.4.0
 	github.com/nabeken/aws-go-dynamodb/v2 v2.1.3
 )
 
