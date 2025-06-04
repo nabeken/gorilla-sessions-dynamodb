@@ -1,18 +1,22 @@
 # gorilla-sessions-dynamodb
 
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore) [![Go](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml/badge.svg)](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml)
+[![Go](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml/badge.svg)](https://github.com/nabeken/gorilla-sessions-dynamodb/actions/workflows/go.yml)
 
 A session store backend for [gorilla/sessions](http://www.gorillatoolkit.org/pkg/sessions).
+
+## v2
+
+As of June 4 2025, the master branch is for v2 which will have AWS SDK For Go v2 support.
 
 ## Installation
 
 ```sh
-go get -u github.com/nabeken/gorilla-sessions-dynamodb/dynamostore
+go get -u github.com/nabeken/gorilla-sessions-dynamodb/v2/dynamostore
 ```
 
 ## Documentation
 
-Available on [pkg.go.dev](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/dynamostore).
+Available on [pkg.go.dev](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/v2/dynamostore).
 
 See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underlying interface.
 
@@ -41,4 +45,4 @@ You can still change the key name rather than `session_id`. Please consult the c
 # Acknowledgement and License
 
 This package is a rewrite of [denizeren/dynamostore](https://github.com/denizeren/dynamostore)
-to use [aws/aws-sdk-go](https://github.com/aws/aws-sdk-go).
+to use [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2).
