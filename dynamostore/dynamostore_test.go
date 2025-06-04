@@ -7,6 +7,7 @@
 package dynamostore
 
 import (
+	"context"
 	"encoding/gob"
 	"math/rand"
 	"net/http"
@@ -17,10 +18,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/gorilla/sessions"
 )
 
@@ -41,19 +43,19 @@ func randSeq(n int) string {
 func newTestCreateTableInput(tableName string) *dynamodb.CreateTableInput {
 	attributeName := aws.String(SessionIdHashKeyName)
 	return &dynamodb.CreateTableInput{
-		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+		AttributeDefinitions: []types.AttributeDefinition{
 			{
 				AttributeName: attributeName,
-				AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
+				AttributeType: types.ScalarAttributeTypeS,
 			},
 		},
-		KeySchema: []*dynamodb.KeySchemaElement{
+		KeySchema: []types.KeySchemaElement{
 			{
 				AttributeName: attributeName,
-				KeyType:       aws.String(dynamodb.KeyTypeHash),
+				KeyType:       types.KeyTypeHash,
 			},
 		},
-		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+		ProvisionedThroughput: &types.ProvisionedThroughput{
 			ReadCapacityUnits:  aws.Int64(1),
 			WriteCapacityUnits: aws.Int64(1),
 		},
@@ -63,31 +65,39 @@ func newTestCreateTableInput(tableName string) *dynamodb.CreateTableInput {
 
 // newTestDynamoDBAPI returns a new instance of DynamoDB client but
 // it points to DynamoDB Local endpoint instead of real endpoint.
-func newTestDynamoDBAPI() *dynamodb.DynamoDB {
+func newTestDynamoDBAPI() (*dynamodb.Client, error) {
 	endpoint := "http://127.0.0.1:8000"
 	if ep := os.Getenv("DYNAMOSTORE_DYNAMODB_ENDPOINT"); ep != "" {
 		endpoint = ep
 	}
 
 	// XXX: region is still need to set real one
-	c := aws.NewConfig().
-		WithRegion("eu-west-1").
-		WithEndpoint(endpoint).
-		WithCredentials(credentials.NewStaticCredentials("DUMMY", "DUMMY_SECRET_KEY", "DUMMY_TOKEN"))
+	config, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider("DUMMY", "DUMMY_SECRET_KEY", "DUMMY_TOKEN"),
+		),
+		config.WithRegion("eu-west-1"),
+		config.WithBaseEndpoint(endpoint),
+	)
 
-	return dynamodb.New(session.New(c))
+	return dynamodb.NewFromConfig(config), err
 }
 
 // prepareDynamoDBTable prepares DynamoDB table and it returns table name.
-func prepareDynamoDBTable(dynamodbClient *dynamodb.DynamoDB) string {
+func prepareDynamoDBTable(dynamodbClient *dynamodb.Client) string {
 	dummyTableName := randSeq(10)
 
 	input := newTestCreateTableInput(dummyTableName)
-	dynamodbClient.CreateTable(input)
+	dynamodbClient.CreateTable(context.TODO(), input)
 
-	dynamodbClient.WaitUntilTableExists(&dynamodb.DescribeTableInput{
-		TableName: aws.String(dummyTableName),
-	})
+	dynamodb.NewTableExistsWaiter(dynamodbClient).Wait(
+		context.TODO(),
+		&dynamodb.DescribeTableInput{
+			TableName: aws.String(dummyTableName),
+		},
+		time.Minute,
+	)
 
 	return dummyTableName
 }
@@ -118,16 +128,19 @@ func TestUseSessionCookie(t *testing.T) {
 		t.Skip("Do not run integration tests unless DYNAMOSTORE_INTEG_TEST is set")
 	}
 
-	dynamodbClient := newTestDynamoDBAPI()
+	dynamodbClient, err := newTestDynamoDBAPI()
+	if err != nil {
+		t.Fatalf("Error creating DynamoDB client: %v", err)
+	}
+
 	dummyTableName := prepareDynamoDBTable(dynamodbClient)
-	defer dynamodbClient.DeleteTable(&dynamodb.DeleteTableInput{
+	defer dynamodbClient.DeleteTable(context.TODO(), &dynamodb.DeleteTableInput{
 		TableName: aws.String(dummyTableName),
 	})
 
 	store := New(dynamodbClient, dummyTableName, []byte("secret-key"))
 	store.UseSessionCookie = true
 
-	var err error
 	req, resp := newTestRequestResponse()
 
 	sessionKey := "cookie-session"
@@ -163,9 +176,13 @@ func TestStoreExpiration(t *testing.T) {
 
 	sessionKey := "session-key-expires"
 
-	dynamodbClient := newTestDynamoDBAPI()
+	dynamodbClient, err := newTestDynamoDBAPI()
+	if err != nil {
+		t.Fatalf("Error creating DynamoDB client: %v", err)
+	}
+
 	dummyTableName := prepareDynamoDBTable(dynamodbClient)
-	defer dynamodbClient.DeleteTable(&dynamodb.DeleteTableInput{
+	defer dynamodbClient.DeleteTable(context.TODO(), &dynamodb.DeleteTableInput{
 		TableName: aws.String(dummyTableName),
 	})
 
@@ -244,9 +261,13 @@ func TestStore(t *testing.T) {
 	// license that can be found in the LICENSE file.
 	// https://github.com/gorilla/sessions/blob/master/sessions_test.go
 
-	dynamodbClient := newTestDynamoDBAPI()
+	dynamodbClient, err := newTestDynamoDBAPI()
+	if err != nil {
+		t.Fatalf("Error creating DynamoDB client: %v", err)
+	}
+
 	dummyTableName := prepareDynamoDBTable(dynamodbClient)
-	defer dynamodbClient.DeleteTable(&dynamodb.DeleteTableInput{
+	defer dynamodbClient.DeleteTable(context.TODO(), &dynamodb.DeleteTableInput{
 		TableName: aws.String(dummyTableName),
 	})
 
@@ -344,9 +365,13 @@ func TestStore_CustomType(t *testing.T) {
 	// license that can be found in the LICENSE file.
 	// https://github.com/gorilla/sessions/blob/master/sessions_test.go
 
-	dynamodbClient := newTestDynamoDBAPI()
+	dynamodbClient, err := newTestDynamoDBAPI()
+	if err != nil {
+		t.Fatalf("Error creating DynamoDB client: %v", err)
+	}
+
 	dummyTableName := prepareDynamoDBTable(dynamodbClient)
-	defer dynamodbClient.DeleteTable(&dynamodb.DeleteTableInput{
+	defer dynamodbClient.DeleteTable(context.TODO(), &dynamodb.DeleteTableInput{
 		TableName: aws.String(dummyTableName),
 	})
 
