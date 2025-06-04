@@ -1,6 +1,6 @@
 module github.com/nabeken/gorilla-sessions-dynamodb
 
-go 1.16
+go 1.23.0
 
 require (
 	github.com/aws/aws-sdk-go v1.40.15
@@ -8,3 +8,5 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/nabeken/aws-go-dynamodb v1.0.1
 )
+
+require github.com/jmespath/go-jmespath v0.4.0 // indirect
