@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.0...v2.0.1) (2025-06-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency go to v1.24.4 ([#25](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/25)) ([00d5e4e](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/00d5e4e6914eee1d99a7f017803d36c6750b5e97))
+* **deps:** update dependency golang to v1.24.4 ([#26](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/26)) ([20e1d60](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/20e1d602be3cfa510b2451f314fe5d931c4809be))
+
 ## [2.0.0](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v1.1.1...v2.0.0) (2025-06-04)
 
 
