@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.1](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.0...v2.0.1) (2025-07-19)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#28](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/28)) ([ae64604](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/ae64604ee6528871856c6ecf50b241dd8d3895a4))
+* **deps:** update aws-sdk-go-v2 monorepo ([#30](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/30)) ([6c0f25f](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/6c0f25f5c502b44041bba8f16369887ad9a9c404))
+* **deps:** update aws-sdk-go-v2 monorepo ([#31](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/31)) ([75c9d28](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/75c9d28b9fddb95f96672c187758753abc12ff16))
+* **deps:** update aws-sdk-go-v2 monorepo ([#35](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/35)) ([909dff8](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/909dff8f15ab6602faf39cbb9b58627df467eede))
+* **deps:** update dependency go to v1.24.4 ([#25](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/25)) ([00d5e4e](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/00d5e4e6914eee1d99a7f017803d36c6750b5e97))
+* **deps:** update dependency go to v1.24.5 ([#33](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/33)) ([cd1004b](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/cd1004bd83833fa9b47b1f2f47d3b74a3a5823c3))
+* **deps:** update dependency golang to v1.24.4 ([#26](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/26)) ([20e1d60](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/20e1d602be3cfa510b2451f314fe5d931c4809be))
+* **deps:** update dependency golang to v1.24.5 ([#34](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/34)) ([e263ec8](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/e263ec8ca5ed6dc2abf14a03a12bc54897a45009))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/dynamodb to v1.44.0 ([#32](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/32)) ([1a45e00](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/1a45e00f08c01e4d2151362a33977303cc340273))
+
 ## [2.0.0](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v1.1.1...v2.0.0) (2025-06-04)
 
 
