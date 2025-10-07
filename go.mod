@@ -2,7 +2,7 @@ module github.com/nabeken/gorilla-sessions-dynamodb/v2
 
 go 1.23.0
 
-toolchain go1.25.1
+toolchain go1.25.2
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.39.2
