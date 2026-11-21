@@ -4,19 +4,21 @@
 
 A session store backend for [gorilla/sessions](http://www.gorillatoolkit.org/pkg/sessions).
 
-## v2
+## v3
 
-As of June 4 2025, the master branch is for v2 which will have AWS SDK For Go v2 support.
+As of November 21 2026, the master branch is for v3, which requires Go 1.25 or later.
+
+v2 added AWS SDK For Go v2 support.
 
 ## Installation
 
 ```sh
-go get -u github.com/nabeken/gorilla-sessions-dynamodb/v2/dynamostore
+go get -u github.com/nabeken/gorilla-sessions-dynamodb/v3/dynamostore
 ```
 
 ## Documentation
 
-Available on [pkg.go.dev](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/v2/dynamostore).
+Available on [pkg.go.dev](https://pkg.go.dev/github.com/nabeken/gorilla-sessions-dynamodb/v3/dynamostore).
 
 See http://www.gorillatoolkit.org/pkg/sessions for full documentation on underlying interface.
 
