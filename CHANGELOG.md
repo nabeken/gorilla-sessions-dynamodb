@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.1...v3.0.0) (2026-11-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* the module path is now .../v3 and Go 1.25 or later is required.
+
+### Features
+
+* prep for v3 ([#149](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/149)) ([548d298](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/548d2981128a6fb072849afa215a9537098fdbde))
+
 ## [2.0.1](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.0...v2.0.1) (2026-11-21)
 
 
