@@ -11,15 +11,15 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.74.1
 	github.com/gorilla/securecookie v1.1.2
 	github.com/gorilla/sessions v1.4.0
-	github.com/nabeken/aws-go-dynamodb/v2 v2.1.5
+	github.com/nabeken/aws-go-dynamodb/v2 v2.1.6
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.38 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.21.23 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.9 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.12 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.32.15 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.48.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.25 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.13.12 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.12 // indirect
