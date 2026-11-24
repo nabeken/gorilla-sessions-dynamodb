@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v3.0.0...v3.0.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/nabeken/aws-go-dynamodb/v2 to v2.1.6 ([#151](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/151)) ([6e439c2](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/6e439c210854b03e88d4ca2bd502fef489d84779))
+
 ## [3.0.0](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.1...v3.0.0) (2026-11-24)
 
 
