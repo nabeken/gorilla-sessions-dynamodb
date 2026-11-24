@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.0](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.1...v3.0.0) (2026-11-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* the module path is now .../v3 and Go 1.25 or later is required.
+
+### Features
+
+* prep for v3 ([#149](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/149)) ([548d298](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/548d2981128a6fb072849afa215a9537098fdbde))
+
+
+### Bug Fixes
+
+* **deps:** update module golang.org/x/crypto to v0.52.0 [security] ([#138](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/138)) ([d04441a](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/d04441a6e7b35ecfa63c03fa5b737b77e78385a9))
+* **deps:** update module golang.org/x/net to v0.55.0 [security] ([#139](https://github.com/nabeken/gorilla-sessions-dynamodb/issues/139)) ([5b03512](https://github.com/nabeken/gorilla-sessions-dynamodb/commit/5b03512a20befda32a679dca0d4d40d794bbebcb))
+
 ## [2.0.1](https://github.com/nabeken/gorilla-sessions-dynamodb/compare/v2.0.0...v2.0.1) (2026-11-21)
 
 
